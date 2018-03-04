@@ -1,0 +1,40 @@
+--- jenkins_jobs.orig	2018-01-15 20:31:26.533503840 +0100
++++ jenkins_jobs	2018-01-15 21:06:06.478835394 +0100
+@@ -33,17 +33,17 @@
+ . $MUNIN_LIBDIR/plugins/plugin.sh
+ 
+ if [ "$1" = "autoconf" ]; then
+-	if [ -d /var/lib/jenkins/jobs ]; then
++	if [ -d /usr/local/jenkins/jobs ]; then
+ 		echo yes
+ 	else
+-		echo "no (/var/lib/jenkins/jobs not found)"
++		echo "no (/usr/local/jenkins/jobs not found)"
+ 	fi
+ 	exit 0
+ fi
+ 
+ STATEFILE=$MUNIN_PLUGSTATE/$(basename $0)
+ 
+-# delete statefile if it's older than ${jenkins_update_interval} set in /etc/munin/plugin-conf.d/jenkins
++# delete statefile if it's older than ${jenkins_update_interval} set in /usr/local/etc/munin/plugin-conf.d/jenkins.conf
+ if test $(find $STATEFILE -mmin +${jenkins_update_interval}) ; then
+ 	rm -f $STATEFILE
+ fi
+@@ -53,7 +53,7 @@
+ 	exit 0
+ fi
+ 
+-JOB_PREFIXES=$(ls -1 /var/lib/jenkins/jobs/|cut -d "_" -f1|sort -f -u)
++JOB_PREFIXES=$(ls -1 /usr/local/jenkins/jobs/|cut -d "-" -f1|sort -f -u)
+ if [ "$1" = "config" ]; then
+ 	echo 'graph_title Jenkins Jobs'
+ 	echo 'graph_args --base 1000 -l 0 '
+@@ -71,6 +71,6 @@
+ fi
+ 
+ for PREFIX in $JOB_PREFIXES ; do
+-	NR=$(find /var/lib/jenkins/jobs/ -maxdepth 1 -name "$PREFIX*" -type d | wc -l)
++	NR=$(find /usr/local/jenkins/jobs/ -maxdepth 1 -name "$PREFIX*" -type d | wc -l)
+ 	echo "jenkins_jobs_$PREFIX.value $NR" | tee -a $STATEFILE
+ done
